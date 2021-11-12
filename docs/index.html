@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html>
    <head>
+   <meta charset="utf-8"/>
       <title>Tree Species Hesse</title>
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
-      <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-
+	  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+		integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+		crossorigin=""/>
+    
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+		integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+		crossorigin=""></script>
+	  
+	  
 	   <!-- Full screen map: -->
 	   <style>
         body {
@@ -20,17 +27,21 @@
 
    <body>
       <div id = "map"></div>
+	  <script src="LRT_map.geojson" type="text/javascript"></script>
       <script>
+	  
+	  
          // Creating map options
          var mapOptions = {
             center: [50.55,8.685908],
-            zoom: 8
+            zoom: 8,
+            maxZoom: 14
          }
          
          // Creating a map object
          var map = new L.map('map', mapOptions);
          
-          // Creating base layer
+         // Creating base layer
          var osmLayer =  L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
 		maxZoom: 18,
 		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -46,13 +57,40 @@
 		attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
 		});
 		
+		////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////
 		
 		
-		 var wmsLayer = L.tileLayer.wms('https://vhrz1078.hrz.uni-marburg.de:8201/public/4YDVVUECZPWZ/static', {layers: 'color'});
+		 // Add WSM with tree species
+       
+		 var wmsLayer = L.tileLayer.wms('https://vhrz1078.hrz.uni-marburg.de:8201/public/4YDVVUECZPWZ/static', {layers: ['color'],
+                format: 'image/png',
+				uppercase: true
+				});
          // Adding layer to the map
          map.addLayer(wmsLayer);
 		 
-		 
+		
+		//add Lebensraumtypen layer
+		
+		
+		var LRT = L.geoJSON(LRT, {style: function(feature) {
+        switch (feature.properties.class) {
+            case "Beech": return {color: "#006600"};
+            case "Oak":   return {color: "#a3752e"};
+			case "Short": return {color: "#00704d"};
+            case "long":   return {color: "#003300"};
+			
+			
+			}
+		}
+		});
+		
+		
+		
+		
+		////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////
 		
 		 // add Layer control
 		var baseMaps = {
@@ -62,13 +100,17 @@
 		};
 	
 		var overlayMaps = {
-		"Tree Species": wmsLayer
+		"Tree Species": wmsLayer,
+		"Habitat Type": LRT
 		};
 	
+	
+		
 		L.control.layers(baseMaps, overlayMaps, {collapsed:false}).addTo(map);
 
 		
 		
+				
 		
 		
 	/*Legend specific*/
@@ -85,7 +127,8 @@
 		div.innerHTML += '<i style="background: #f18304"></i><span>Larch</span><br>';
 		div.innerHTML += '<i style="background: #560e2d"></i><span>Long-lived trees</span><br>';
 		div.innerHTML += '<i style="background: #51c8f7"></i><span>Short-lived trees</span><br>';
-		
+		div.innerHTML += "<h4>Area of Applicability</h4>";
+		div.innerHTML += '<i style="background: #000000"></i><span>Not Applicable</span><br>';
 		
 	return div;
 	};
@@ -96,10 +139,10 @@
 	
 		
 		
-		
       </script>
    </body>
    
+    
    <style>	
 
 	/*Legend specific layout with css*/
@@ -140,4 +183,6 @@
 
 		
 	</style>	
+   
+   
 </html>
